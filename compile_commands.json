@@ -1,0 +1,32 @@
+[
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/main.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/main.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/file_processor.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/file_processor.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  }
+]
