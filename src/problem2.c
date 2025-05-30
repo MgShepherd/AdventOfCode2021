@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
     int horizontal;
     int depth;
+    int aim;
 } Position;
 
 AocResponse convert_to_movement(const char* line, Movement* movement);
@@ -122,11 +123,12 @@ void update_position(const Movement* movement, Position* position) {
     switch (movement->direction) {
         case FORWARD:
             position->horizontal += movement->amount;
+            position->depth += position->aim * movement->amount;
             break;
         case DOWN:
-            position->depth += movement->amount;
+            position->aim += movement->amount;
             break;
         case UP:
-            position->depth -= movement->amount;
+            position->aim -= movement->amount;
     }
 }
