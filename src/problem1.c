@@ -1,5 +1,6 @@
 #include "problem1.h"
 #include "response.h"
+#include "utils.h"
 
 #include <ctype.h>
 #include <stddef.h>
@@ -48,25 +49,13 @@ AocResponse process_line(const char* line, int* readings, unsigned int current_i
     }
 
     int reading;
-    AocResponse response = convert_line_to_int(line, &reading);
+    AocResponse response = convert_str_to_int(line, &reading);
     if (!aoc_is_success(&response)) {
         return response;
     }
     handle_increasing_sum(reading, readings, current_idx, num_increasing);
 
     response = (AocResponse) { .code = SUCCESS };
-    return response;
-}
-
-AocResponse convert_line_to_int(const char* line, int* result) {
-    AocResponse response = { .code = SUCCESS };
-    char* digit_end_pointer;
-    *result = strtol(line, &digit_end_pointer, 10);
-
-    if (digit_end_pointer == line || (*digit_end_pointer != '\0' && *digit_end_pointer != '\n')) {
-        response = (AocResponse) { .code = INVALID_INPUT, .reason = "Cannot convert line to integer" };
-    }
-
     return response;
 }
 

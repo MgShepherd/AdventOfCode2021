@@ -38,10 +38,40 @@
       "-I./include",
       "-o",
       "build/main",
+      "src/problem2.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem2.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
       "src/response.c"
     ],
     "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
     "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/response.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/utils.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/utils.c",
     "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
   }
 ]
