@@ -1,6 +1,6 @@
 CC=clang
 CFLAGS=-Wall -Werror -I./include
-CFILES=src/main.c src/file_processor.c
+CFILES=src/main.c src/problem1.c src/response.c
 OUTDIR=build
 
 main: $(CFILES) | build
