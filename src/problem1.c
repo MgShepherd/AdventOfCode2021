@@ -7,9 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-AocResponse process_line(const char* line, int* prev_reading, unsigned int* num_increasing);
+AocResponse process_line(const char* line, int* readings, unsigned int current_idx, unsigned int* num_increasing);
+AocResponse convert_line_to_int(const char* line, int* result);
+void handle_increasing_sum(const int reading, int* readings, unsigned int current_idx, unsigned int* num_increasing);
 
-const unsigned int MAX_LINE_LENGTH = 5;
+const unsigned int MAX_LINE_LENGTH = 6;
+const unsigned int SLIDING_WINDOW_SIZE = 3;
 
 AocResponse problem1_solve(unsigned int* solution) {
     const char* file_name = "inputs/problem1.txt";
@@ -21,40 +24,62 @@ AocResponse problem1_solve(unsigned int* solution) {
     }
 
     char line[MAX_LINE_LENGTH];
-    int prev_reading = -1;
+    int readings[] = {-1, -1, -1};
+    unsigned int current_idx = 0;
     unsigned int num_increasing = 0;
     AocResponse response;
 
     while (fgets(line, MAX_LINE_LENGTH, file)) {
-        response = process_line(line, &prev_reading, &num_increasing);
+        response = process_line(line, readings, current_idx, &num_increasing);
         if(response.code != SUCCESS) {
             return response;
         }
+        current_idx = (current_idx + 1) % SLIDING_WINDOW_SIZE;
     }
 
     *solution = num_increasing;
     return response;
 }
 
-AocResponse process_line(const char* line, int* prev_reading, unsigned int* num_increasing) {
+
+AocResponse process_line(const char* line, int* readings, unsigned int current_idx, unsigned int* num_increasing) {
     if (strlen(line) == 0 || isspace(line[0])) {
-        const AocResponse response = { .code = SUCCESS };
-        return response;
+        return (AocResponse) { .code = SUCCESS };
     }
 
+    int reading;
+    AocResponse response = convert_line_to_int(line, &reading);
+    if (!aoc_is_success(&response)) {
+        return response;
+    }
+    handle_increasing_sum(reading, readings, current_idx, num_increasing);
+
+    response = (AocResponse) { .code = SUCCESS };
+    return response;
+}
+
+AocResponse convert_line_to_int(const char* line, int* result) {
+    AocResponse response = { .code = SUCCESS };
     char* digit_end_pointer;
-    long reading = strtol(line, &digit_end_pointer, 10);
+    *result = strtol(line, &digit_end_pointer, 10);
 
     if (digit_end_pointer == line || (*digit_end_pointer != '\0' && *digit_end_pointer != '\n')) {
-        const AocResponse response = { .code = INVALID_INPUT, .reason = "Cannot convert line to integer" };
-        return response;
+        response = (AocResponse) { .code = INVALID_INPUT, .reason = "Cannot convert line to integer" };
     }
 
-    if (*prev_reading != -1 && reading > *prev_reading) {
-        *num_increasing += 1;
-    }
-
-    *prev_reading = reading;
-    const AocResponse response = { .code = SUCCESS };
     return response;
+}
+
+void handle_increasing_sum(const int reading, int* readings, unsigned int current_idx, unsigned int* num_increasing) {
+     if (readings[current_idx] == -1) {
+        readings[current_idx] = reading;
+        return;
+    }
+
+    int prev_sum = readings[0] + readings[1] + readings[2];
+    readings[current_idx] = reading;
+    int new_sum = readings[0] + readings[1] + readings[2];
+    if (new_sum > prev_sum) {
+        (*num_increasing)++;
+    }
 }
