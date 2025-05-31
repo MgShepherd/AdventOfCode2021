@@ -38,6 +38,7 @@ AocResponse problem1_solve(unsigned int* solution) {
         current_idx = (current_idx + 1) % SLIDING_WINDOW_SIZE;
     }
 
+    fclose(file);
     *solution = num_increasing;
     return response;
 }
@@ -49,7 +50,7 @@ AocResponse process_line(const char* line, int* readings, unsigned int current_i
     }
 
     int reading;
-    AocResponse response = convert_str_to_int(line, &reading);
+    AocResponse response = convert_str_to_int(line, &reading, 10);
     if (!aoc_is_success(&response)) {
         return response;
     }

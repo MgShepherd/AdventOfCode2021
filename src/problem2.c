@@ -53,6 +53,7 @@ AocResponse problem2_solve(int* solution) {
         update_position(&movement, &current_position);
     }
 
+    fclose(file);
     *solution = current_position.depth * current_position.horizontal;
     return (AocResponse) { .code = SUCCESS };
 }
@@ -80,7 +81,7 @@ AocResponse convert_to_movement(const char* line, Movement* movement) {
         return response;
     }
 
-    response = convert_str_to_int(token, &movement->amount);
+    response = convert_str_to_int(token, &movement->amount, 10);
     return response;
 }
 
