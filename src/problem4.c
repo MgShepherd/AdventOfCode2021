@@ -21,6 +21,7 @@ typedef struct {
 
 typedef struct {
     BingoElement* elements;
+    bool has_won;
 } BingoBoard;
 
 AocResponse process_call_line(FILE* file, int* calls, size_t* num_calls);
@@ -125,6 +126,7 @@ AocResponse process_boards(FILE* file, BingoBoard* boards) {
 AocResponse process_board(FILE* file, BingoBoard* board) {
     AocResponse response = { .code = SUCCESS };
 
+    board->has_won = false;
     board->elements = (BingoElement*) malloc(BINGO_BOARD_SIZE * BINGO_BOARD_SIZE * sizeof(BingoElement));
     if (board->elements == NULL) {
         response = (AocResponse) { .code = MEMORY_ALLOCATION_ERROR, .reason = "Unable to allocate required memory for bingo board" };
@@ -176,21 +178,21 @@ AocResponse process_board_line(const char* line, BingoElement* element_line) {
 
 AocResponse find_winning_board(const int* calls, size_t num_calls, size_t* winning_board_idx, size_t* winning_call_idx, BingoBoard* boards) {
     AocResponse response = { .code = SUCCESS };
-    bool has_won = false;
+    size_t won_boards = 0;
 
     for (size_t i = 0; i < num_calls; i++) {
         for (size_t j = 0; j < NUM_BINGO_BOARDS; j++) {
-            has_won = find_element_and_check_won(calls[i], &boards[j]);
-            if (has_won) {
-                *winning_call_idx = i;
-                *winning_board_idx = j;
-                goto end_func;
+            if (boards[j].has_won) continue;
+            boards[j].has_won = find_element_and_check_won(calls[i], &boards[j]);
+            if (boards[j].has_won) {
+                won_boards++;
+                if (won_boards == NUM_BINGO_BOARDS) {
+                    *winning_call_idx = i;
+                    *winning_board_idx = j;
+                    goto end_func;
+                }
             }
         }
-    }
-
-    if (!has_won) {
-        response = (AocResponse) { .code = INVALID_INPUT, .reason = "Unable to find winning board" };
     }
 
 end_func:
