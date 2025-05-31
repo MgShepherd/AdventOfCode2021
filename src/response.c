@@ -10,6 +10,8 @@ void aoc_display_response(const AocResponse* response) {
         case INVALID_INPUT:
             printf("Unable to process input line due to %s\n", response->reason);
             break;
+        case MEMORY_ALLOCATION_ERROR:
+            printf("Error allocating memory required to solve problem: %s\n", response->reason);
         default:
             break;
     }

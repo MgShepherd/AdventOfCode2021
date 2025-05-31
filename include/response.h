@@ -6,7 +6,8 @@
 typedef enum {
   SUCCESS,
   FILE_NOT_FOUND,
-  INVALID_INPUT
+  INVALID_INPUT,
+  MEMORY_ALLOCATION_ERROR
 } AocResponseCode;
 
 typedef struct {
