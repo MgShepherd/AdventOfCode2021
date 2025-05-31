@@ -5,13 +5,15 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 AocResponse process_lines(FILE* file, int* solution);
-void fill_zeroes(int* input_array, const size_t length);
-AocResponse update_bit_vals(const char* line, int* bit_vals);
-AocResponse get_rate(const int* bit_vals, bool is_gamma, int* rate);
+AocResponse filter_lines(char** inputs, size_t current_length, size_t char_idx, bool is_oxygen);
+AocResponse get_rating(char** inputs, bool is_oxygen, int* rating);
+void destroy_inputs(char** inputs);
 
 const size_t LINE_LENGTH = 12;
+const size_t NUM_LINES = 1000;
 
 AocResponse problem3_solve(int* solution) {
     const char* file_name = "inputs/problem3.txt";
@@ -22,69 +24,99 @@ AocResponse problem3_solve(int* solution) {
     }
 
     process_lines(file, solution);
-
     fclose(file);
 
     return (AocResponse) { .code = SUCCESS };
 }
 
 AocResponse process_lines(FILE* file, int* solution) {
-    int bit_vals[LINE_LENGTH];
-    char line[LINE_LENGTH + 1];
-    fill_zeroes(bit_vals, LINE_LENGTH);
     AocResponse response = { .code = SUCCESS };
+    char** inputs = (char**) malloc(NUM_LINES * sizeof(char*));
 
+    char line[LINE_LENGTH + 1];
+    size_t idx = 0;
     while (fgets(line, LINE_LENGTH + 1, file)) {
         if (strlen(line) == 0 || isspace(line[0])) {
             continue;
         }
-
-        response = update_bit_vals(line, bit_vals);
-        if (!aoc_is_success(&response)) {
-            return response;
-        }
+        char* current_line = (char*) malloc((LINE_LENGTH + 1) * sizeof(char));
+        strcpy(current_line, line);
+        inputs[idx++] = current_line;
     }
 
-    int gamma_rate, epsilon_rate;
-    get_rate(bit_vals, true, &gamma_rate);
-    get_rate(bit_vals, false, &epsilon_rate);
+    int oxy_rating, co2_rating;
+    response = get_rating(inputs, true, &oxy_rating);
+    if (!aoc_is_success(&response)) {
+        return response;
+    }
 
-    *solution = gamma_rate * epsilon_rate;
-    printf("Epsilon Rate: %d, Gamma Rate: %d\n", epsilon_rate, gamma_rate);
+    response = get_rating(inputs, false, &co2_rating);
+    if (!aoc_is_success(&response)) {
+        return response;
+    }
 
+    *solution = oxy_rating * co2_rating;
+    destroy_inputs(inputs);
     return response;
 }
 
-void fill_zeroes(int* input_array, const size_t length) {
-    for (size_t i = 0; i < LINE_LENGTH; i++) {
-        input_array[i] = 0;
+AocResponse get_rating(char** inputs, bool is_oxygen, int* rating) {
+    AocResponse response = filter_lines(inputs, NUM_LINES, 0, is_oxygen);
+    if (!aoc_is_success(&response)) {
+        return response;
     }
+
+    response = convert_str_to_int(inputs[0], rating, 2);
+    if (!aoc_is_success(&response)) {
+        return response;
+    }
+    return response;
 }
 
-AocResponse update_bit_vals(const char* line, int* bit_vals) {
-    for (size_t i = 0; i < LINE_LENGTH; i++) {
-        if (line[i] == '0') {
-            bit_vals[i] -= 1;
-        } else if (line[i] == '1') {
-            bit_vals[i] += 1;
+AocResponse filter_lines(char** inputs, size_t current_length, size_t char_idx, bool is_oxygen) {
+    if (char_idx >= LINE_LENGTH) {
+        return (AocResponse) { .code = INVALID_INPUT, .reason = "Unable to find single rating value before out of bounds" };
+    }
+
+    int frequency = 0;
+    for (size_t i = 0; i < current_length; i++) {
+        if (inputs[i][char_idx] == '1') {
+            frequency++;
         } else {
-            return (AocResponse) { .code = INVALID_INPUT, .reason = "Encountered character that was not 1 or 0" };
+            frequency--;
         }
     }
 
-    return (AocResponse) { .code = SUCCESS };
-}
+    char keep_char;
+    if (is_oxygen) {
+        keep_char = frequency >= 0 ? '1' : '0';
+    } else {
+        keep_char = frequency >= 0 ? '0' : '1';
+    }
 
-AocResponse get_rate(const int* bit_vals, bool is_gamma, int* rate) {
-    char binary_string[LINE_LENGTH + 1];
-    for (size_t i = 0; i < LINE_LENGTH; i++) {
-        if (bit_vals[i] >= 0) {
-            binary_string[i] = is_gamma ? '1' : '0';
+    size_t current_idx = 0;
+    size_t end_idx = current_length - 1;
+
+    while(current_idx <= end_idx) {
+        if (inputs[current_idx][char_idx] != keep_char) {
+            char* temp = inputs[current_idx];
+            inputs[current_idx] = inputs[end_idx];
+            inputs[end_idx] = temp;
+            end_idx--;
         } else {
-            binary_string[i] = is_gamma ? '0' : '1';
+            current_idx++;
         }
     }
-    binary_string[LINE_LENGTH] = '\0';
 
-    return convert_str_to_int(binary_string, rate, 2);
+    if (end_idx <= 0) {
+        return (AocResponse) { .code = SUCCESS };
+    }
+    return filter_lines(inputs, end_idx + 1, char_idx + 1, is_oxygen);
+}
+
+void destroy_inputs(char** inputs) {
+    for (size_t i = 0; i < NUM_LINES; i++) {
+        free(inputs[i]);
+    }
+    free(inputs);
 }
