@@ -24,6 +24,7 @@ typedef struct {
 
 void insert_horizontal_line(int* grid, int* overlapping_count, int y, int start_x, int end_x);
 void insert_vertical_line(int* grid, int* overlapping_count, int x, int start_y, int end_y);
+void insert_diagonal_line(int* grid, int* overlapping_count, const Position* start, const Position *end);
 AocResponse fill_grid(int* grid, FILE* file, int* overlapping_count);
 AocResponse read_line_to_segment(Segment* segment, const char* line);
 AocResponse read_token_to_position(Position* position, const char* token);
@@ -72,6 +73,8 @@ AocResponse fill_grid(int* grid, FILE* file, int* overlapping_count) {
             insert_vertical_line(grid, overlapping_count, segment.start.x, segment.start.y, segment.end.y);
         } else if (segment.start.y == segment.end.y) {
             insert_horizontal_line(grid, overlapping_count, segment.start.y, segment.start.x, segment.end.x);
+        } else {
+            insert_diagonal_line(grid, overlapping_count, &segment.start, &segment.end);
         }
     }
 
@@ -99,6 +102,24 @@ void insert_vertical_line(int* grid, int *overlapping_count, int x, int start_y,
         if (grid[(i * GRID_DIMENSION_SIZE) + x] == 2) {
             (*overlapping_count)++;
         }
+    }
+}
+
+void insert_diagonal_line(int* grid, int* overlapping_count, const Position* start, const Position* end) {
+    const int x_direction = start->x - end->x > 0 ? -1 : 1;
+    const int y_direction = start->y - end->y > 0 ? -1 : 1;
+
+    Position current = { .x = start->x, .y = start->y };
+    while (true) {
+        grid[(current.y * GRID_DIMENSION_SIZE) + current.x]++;
+        if (grid[(current.y * GRID_DIMENSION_SIZE) + current.x] == 2) {
+            (*overlapping_count)++;
+        }
+        if (current.x == end->x && current.y == end->y) {
+            break;
+        }
+        current.x += x_direction;
+        current.y += y_direction;
     }
 }
 
