@@ -113,6 +113,21 @@
       "-I./include",
       "-o",
       "build/main",
+      "src/problem7.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem7.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
       "src/response.c"
     ],
     "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
