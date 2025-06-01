@@ -5,22 +5,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-AocResponse process_file(int* ages, FILE* file);
-AocResponse convert_line_to_ages(int* ages, const char* line);
-void simulate_cycles(int* ages);
-int get_total_fish(int* ages);
+AocResponse process_file(unsigned long* ages, FILE* file);
+AocResponse convert_line_to_ages(unsigned long* ages, const char* line);
+void simulate_cycles(unsigned long* ages);
+unsigned long get_total_fish(unsigned long* ages);
 
 const size_t NUM_LIFECYCLE_VALUES = 9;
 const size_t P6_MAX_LINE_LENGTH = 1000;
 const size_t MAX_AGE_LENGTH = 2;
-const size_t NUM_CYCLES = 80;
+const size_t NUM_CYCLES = 256;
 const size_t RESTART_CYCLE_AGE = 6;
 
-AocResponse problem6_solve(int* solution) {
+AocResponse problem6_solve(unsigned long* solution) {
     AocResponse response = { .code = SUCCESS };
 
     const char* file_name = "inputs/problem6.txt";
-    int* ages = NULL;
+    unsigned long* ages = NULL;
 
     FILE* file = fopen(file_name, "r");
     if (file == NULL) {
@@ -28,7 +28,7 @@ AocResponse problem6_solve(int* solution) {
         goto cleanup;
     }
 
-    ages = (int*) calloc(NUM_LIFECYCLE_VALUES, sizeof(int));
+    ages = (unsigned long*) calloc(NUM_LIFECYCLE_VALUES, sizeof(unsigned long));
     if (ages == NULL) {
         response = (AocResponse) { .code = MEMORY_ALLOCATION_ERROR, .reason = "Unable to allocate memory required for storing ages" };
         goto cleanup;
@@ -48,7 +48,7 @@ cleanup:
     return response;
 }
 
-AocResponse process_file(int* ages, FILE* file) {
+AocResponse process_file(unsigned long* ages, FILE* file) {
     AocResponse response = { .code = SUCCESS };
 
     char line[P6_MAX_LINE_LENGTH];
@@ -61,7 +61,7 @@ AocResponse process_file(int* ages, FILE* file) {
     return response;
 }
 
-AocResponse convert_line_to_ages(int* ages, const char* line) {
+AocResponse convert_line_to_ages(unsigned long* ages, const char* line) {
     AocResponse response = { .code = SUCCESS };
 
     char current_age[MAX_AGE_LENGTH];
@@ -92,9 +92,9 @@ AocResponse convert_line_to_ages(int* ages, const char* line) {
     return response;
 }
 
-void simulate_cycles(int* ages) {
+void simulate_cycles(unsigned long* ages) {
     for(size_t i = 0; i < NUM_CYCLES; i++) {
-        const int num_fish_to_add = ages[0];
+        const unsigned long num_fish_to_add = ages[0];
         for (size_t j = 0; j < NUM_LIFECYCLE_VALUES - 1; j++) {
             ages[j] = ages[j + 1];
         }
@@ -103,8 +103,8 @@ void simulate_cycles(int* ages) {
     }
 }
 
-int get_total_fish(int* ages) {
-    size_t total_fish = 0;
+unsigned long get_total_fish(unsigned long* ages) {
+    unsigned long total_fish = 0;
     for (size_t i = 0; i < NUM_LIFECYCLE_VALUES; i++) {
         total_fish += ages[i];
     }
