@@ -8,9 +8,11 @@
 const size_t MAX_TOKEN_SIZE = 5;
 const size_t P7_MAX_LINE_LENGTH = 4000;
 const size_t MAX_POSITIONS = 1000;
+const size_t MAX_STEPS = 2000;
 
 AocResponse convert_to_positions(const char* line, int* positions, size_t* num_positions, int* max_position);
-int find_optimal_alignment(const int* positions, size_t num_positions, int max_position);
+AocResponse find_optimal_alignment(const int* positions, int* optimal, size_t num_positions, int max_position);
+void update_steps_costs(int* steps_costs, int steps_needed);
 
 AocResponse problem7_solve(int* solution) {
     AocResponse response = { .code = SUCCESS };
@@ -40,7 +42,7 @@ AocResponse problem7_solve(int* solution) {
     response = convert_to_positions(line, positions, &num_positions, &max_position);
     if (!aoc_is_success(&response)) goto p7_cleanup;
 
-    *solution = find_optimal_alignment(positions, num_positions, max_position);
+    response = find_optimal_alignment(positions, solution, num_positions, max_position);
 
 p7_cleanup:
     if (positions != NULL) free(positions);
@@ -81,17 +83,49 @@ AocResponse convert_to_positions(const char* line, int* positions, size_t* num_p
     return response;
 }
 
-int find_optimal_alignment(const int* positions, size_t num_positions, int max_position) {
-  int optimal = -1;
-  int current = 0;
+AocResponse find_optimal_alignment(const int* positions, int* optimal, size_t num_positions, int max_position) {
+    AocResponse response = { .code = SUCCESS };
+    *optimal = -1;
+    int current = 0;
+    int steps_needed = 0;
 
-  for (int i = 0; i <= max_position; i++) {
-      current = 0;
-      for (size_t j = 0; j < num_positions; j++) {
-          current += abs(positions[j] - i);
-      }
-      if (current < optimal || optimal == -1) optimal = current;
-  }
+    int* steps_costs = calloc(MAX_STEPS, sizeof(int));
+    if (steps_costs == NULL) {
+        response = (AocResponse) { .code = MEMORY_ALLOCATION_ERROR, .reason = "Unable to assign memory required for keeping track of required step costs" };
+        goto optimal_alignment_cleanup;
+    }
 
-  return optimal;
+    for (int i = 0; i <= max_position; i++) {
+        current = 0;
+        for (size_t j = 0; j < num_positions; j++) {
+            steps_needed = abs(positions[j] - i);
+            if (steps_needed >= MAX_STEPS) {
+                response = (AocResponse) { .code = INVALID_INPUT, .reason = "Position requires more steps than available" };
+                goto optimal_alignment_cleanup;
+            }
+
+            if (steps_needed != 0 && steps_costs[steps_needed] == 0) {
+                update_steps_costs(steps_costs, steps_needed);
+            }
+            current += steps_costs[steps_needed];
+            if (current > *optimal && *optimal != -1) break;
+        }
+        if (current < *optimal || *optimal == -1) *optimal = current;
+    }
+
+optimal_alignment_cleanup:
+    if (steps_costs != NULL) free(steps_costs);
+    return response;
+}
+
+void update_steps_costs(int* steps_costs, int steps_needed) {
+    int prev_found_idx = steps_needed;
+
+    while (prev_found_idx != 0 && steps_costs[prev_found_idx] == 0) {
+        prev_found_idx--;
+    }
+
+    for (size_t i = prev_found_idx + 1; i <= steps_needed; i++) {
+        steps_costs[i] = steps_costs[i - 1] + i;
+    }
 }
