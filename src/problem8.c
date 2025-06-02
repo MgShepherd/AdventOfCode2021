@@ -1,5 +1,6 @@
 #include "problem8.h"
 #include "response.h"
+#include "utils.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -14,8 +15,9 @@ const size_t MAX_DIGIT_LENGTH = 8;
 AocResponse process_digit_line(const char* line, int* num_appearing, char** input_digits, char** output_digits);
 AocResponse process_digit_lines(FILE* file, int* solution);
 AocResponse init_digit_array(char** digit_array, size_t len, size_t element_len);
-void get_digits_appearing_in_output(char** output_digits, size_t len, int* solution);
+AocResponse get_digits_appearing_in_output(char** input_digits, char** output_digits, int* solution);
 void destroy_digit_array(char** digit_array, size_t len);
+int get_similarity(const char* a, const char* b);
 
 AocResponse problem8_solve(int* solution) {
     AocResponse response = { .code = SUCCESS };
@@ -56,7 +58,7 @@ AocResponse process_digit_lines(FILE* file, int* solution) {
 
         response = process_digit_line(line, solution, input_digits, output_digits);
         if (!aoc_is_success(&response)) goto lines_cleanup;
-        get_digits_appearing_in_output(output_digits, NUM_OUTPUT_DIGITS, solution);
+        get_digits_appearing_in_output(input_digits, output_digits, solution);
     }
 
 lines_cleanup:
@@ -120,14 +122,87 @@ AocResponse process_digit_line(const char* line, int* num_appearing, char** inpu
     return response;
 }
 
-void get_digits_appearing_in_output(char** output_digits, size_t len, int* solution) {
+AocResponse get_digits_appearing_in_output(char** input_digits, char** output_digits, int* solution) {
     size_t digit_len = 0;
-    for (size_t i = 0; i < len; i++) {
-        digit_len = strlen(output_digits[i]);
-        if (digit_len == 2 || digit_len == 4 || digit_len == 3 || digit_len == 7) {
-            (*solution)++;
+    char* digit_representations[NUM_INPUT_DIGITS];
+
+    for (size_t i = 0; i < NUM_INPUT_DIGITS; i++) {
+        digit_len = strlen(input_digits[i]);
+        switch (digit_len) {
+            case 2:
+                digit_representations[1] = input_digits[i];
+                break;
+            case 3:
+                digit_representations[7] = input_digits[i];
+                break;
+            case 4:
+                digit_representations[4] = input_digits[i];
+                break;
+            case 7:
+                digit_representations[8] = input_digits[i];
+                break;
+            default:
+                break;
         }
     }
+
+    for (size_t i = 0; i < NUM_INPUT_DIGITS; i++) {
+        digit_len = strlen(input_digits[i]);
+        if (digit_len == 6) {
+            int similarity = get_similarity(digit_representations[1], input_digits[i]);
+            if (similarity == 1) {
+                digit_representations[6] = input_digits[i];
+            } else {
+                int four_similarity = get_similarity(digit_representations[4], input_digits[i]);
+                if (four_similarity == 4) {
+                    digit_representations[9] = input_digits[i];
+                } else {
+                    digit_representations[0] = input_digits[i];
+                }
+            }
+        } else if (digit_len == 5) {
+            int one_similarity = get_similarity(digit_representations[1], input_digits[i]);
+            if (one_similarity == 2) {
+                digit_representations[3] = input_digits[i];
+            } else {
+                int four_similarity = get_similarity(digit_representations[4], input_digits[i]);
+                if (four_similarity == 3) {
+                    digit_representations[5] = input_digits[i];
+                } else {
+                    digit_representations[2] = input_digits[i];
+                }
+            }
+        }
+    }
+
+    char output_num[NUM_OUTPUT_DIGITS + 1];
+    for (size_t i = 0; i < NUM_OUTPUT_DIGITS; i++) {
+        for (size_t j = 0; j < NUM_INPUT_DIGITS; j++) {
+            if (strlen(output_digits[i]) == strlen(digit_representations[j]) &&
+                get_similarity(digit_representations[j], output_digits[i]) == strlen(output_digits[i])) {
+                output_num[i] = j + '0';
+                break;
+            }
+        }
+    }
+    output_num[NUM_OUTPUT_DIGITS] = '\0';
+    int value;
+    const AocResponse response = convert_str_to_int(output_num, &value, 10);
+    if (aoc_is_success(&response)) *solution += value;
+    return response;
+}
+
+int get_similarity(const char* a, const char* b) {
+    int similarity = 0;
+    for (size_t i = 0; i < strlen(a); i++) {
+        for(size_t j = 0; j < strlen(b); j++) {
+            if (b[j] == a[i]) {
+                similarity++;
+                break;
+            }
+        }
+    }
+    return similarity;
 }
 
 void destroy_digit_array(char** digit_array, size_t len) {
