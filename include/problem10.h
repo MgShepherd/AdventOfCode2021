@@ -3,7 +3,6 @@
 
 #include "response.h"
 
-AocResponse problem10_solve(int* solution);
-
+AocResponse problem10_solve(unsigned long* solution);
 
 #endif // PROBLEM10_H_
