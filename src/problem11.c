@@ -7,7 +7,6 @@
 
 const size_t GRID_DIMENSION = 10;
 const int FLASH_POINT = 9;
-const size_t NUM_STEPS = 100;
 
 typedef struct {
     int last_flashed_step;
@@ -21,9 +20,10 @@ typedef struct {
 
 AocResponse convert_file_to_grid(Octopus* grid, FILE* file);
 AocResponse process_grid_line(Octopus* grid, size_t start_pos, const char* line);
-AocResponse perform_steps(Octopus* grid, int num_steps, int* solution);
+AocResponse perform_steps(Octopus* grid, int* solution);
 void perform_step(Octopus* grid, GridLocation* flash_locations, int current_step, int* total_flashes);
 void perform_flash(Octopus* grid, GridLocation* flash_locations, const GridLocation* current_loc, size_t* flash_loc_len, int current_step);
+bool is_sync(const Octopus* grid);
 
 AocResponse problem11_solve(int* solution) {
     AocResponse response = { .code = SUCCESS };
@@ -40,7 +40,7 @@ AocResponse problem11_solve(int* solution) {
     response = convert_file_to_grid(grid, file);
     if (!aoc_is_success(&response)) goto p11_cleanup;
 
-    response = perform_steps(grid, NUM_STEPS, solution);
+    response = perform_steps(grid, solution);
 
 p11_cleanup:
     if (grid != NULL) free(grid);
@@ -79,7 +79,7 @@ AocResponse process_grid_line(Octopus* grid, size_t start_pos, const char* line)
     return response;
 }
 
-AocResponse perform_steps(Octopus* grid, int num_steps, int* solution) {
+AocResponse perform_steps(Octopus* grid, int* solution) {
     AocResponse response = { .code = SUCCESS };
 
     GridLocation* flash_locations = malloc(GRID_DIMENSION * GRID_DIMENSION * sizeof(GridLocation));
@@ -89,13 +89,22 @@ AocResponse perform_steps(Octopus* grid, int num_steps, int* solution) {
         goto steps_cleanup;
     }
 
-    for (int i = 0; i < num_steps; i++) {
-        perform_step(grid, flash_locations, i, solution);
+    size_t idx = 0;
+    while(!is_sync(grid)) {
+        perform_step(grid, flash_locations, idx++, solution);
     }
+    *solution = idx;
 
 steps_cleanup:
     if (flash_locations != NULL) free(flash_locations);
     return response;
+}
+
+bool is_sync(const Octopus* grid) {
+    for (size_t i = 1; i < GRID_DIMENSION * GRID_DIMENSION; i++) {
+       if (grid[i].value != grid[i - 1].value) return false;
+    }
+    return true;
 }
 
 void perform_step(Octopus* grid, GridLocation* flash_locations, int current_step, int* total_flashes) {
