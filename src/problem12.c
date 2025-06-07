@@ -25,7 +25,7 @@ AocResponse read_file_to_cave_system(FILE* file, struct CaveSystem* cave_system,
 AocResponse read_line_to_cave_system(const char* line, struct CaveSystem* cave_system, struct Cave** start_cave);
 AocResponse add_or_get_cave(struct CaveSystem* cave_system, const char* name, struct Cave** result);
 AocResponse traverse_cave_system(const struct CaveSystem* cave_system, const struct Cave* start_cave, int* solution);
-AocResponse get_possible_routes_from_cave(const struct Cave* current, const struct Cave** visited_caves, size_t num_visited, int* num_routes);
+AocResponse get_possible_routes_from_cave(const struct Cave* current, const struct Cave** visited_caves, size_t num_visited, int* num_routes, bool visited_twice);
 void destroy_cave_system(struct CaveSystem* cave_system);
 void display_cave_system(const struct CaveSystem* cave_system);
 
@@ -167,20 +167,24 @@ AocResponse traverse_cave_system(const struct CaveSystem* cave_system, const str
         goto traverse_end;
     }
 
-    response = get_possible_routes_from_cave(start_cave, visited_caves, 1, solution);
+    response = get_possible_routes_from_cave(start_cave, visited_caves, 1, solution, false);
 
 traverse_end:
     if (visited_caves != NULL) free(visited_caves);
     return response;
 }
 
-AocResponse get_possible_routes_from_cave(const struct Cave* current, const struct Cave** visited_caves, size_t num_visited, int* num_routes) {
+AocResponse get_possible_routes_from_cave(const struct Cave* current, const struct Cave** visited_caves, size_t num_visited, int* num_routes, bool visited_twice) {
     AocResponse response = { .code = SUCCESS };
     const struct Cave** new_visited = NULL;
 
     for (size_t i = 0; i < num_visited; i++) {
         if (visited_caves[i] == current) {
-            goto routes_end;
+            if (visited_twice || strcmp(current->name, "start") == 0) {
+                goto routes_end;
+            } else {
+                visited_twice = true;
+            }
         }
     }
 
@@ -201,7 +205,7 @@ AocResponse get_possible_routes_from_cave(const struct Cave* current, const stru
     }
 
     for (size_t i = 0; i < current->num_links; i++) {
-        get_possible_routes_from_cave(current->links[i], new_visited, num_visited, num_routes);
+        get_possible_routes_from_cave(current->links[i], new_visited, num_visited, num_routes, visited_twice);
     }
 
 routes_end:
