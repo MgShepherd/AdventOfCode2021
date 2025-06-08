@@ -143,6 +143,81 @@
       "-I./include",
       "-o",
       "build/main",
+      "src/problem9.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem9.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/problem10.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem10.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/problem11.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem11.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/problem12.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem12.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
+      "src/problem13.c"
+    ],
+    "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",
+    "file": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/src/problem13.c",
+    "output": "/Users/michaelshepherd/Documents/C/AdventOfCode2021/build/main"
+  },
+  {
+    "arguments": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-I./include",
+      "-o",
+      "build/main",
       "src/response.c"
     ],
     "directory": "/Users/michaelshepherd/Documents/C/AdventOfCode2021",

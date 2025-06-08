@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "problem12.h"
+#include "problem13.h"
 #include "response.h"
 
 int main() {
     int solution = 0;
-    const AocResponse response = problem12_solve(&solution);
+    const AocResponse response = problem13_solve(&solution);
     if (!aoc_is_success(&response)) {
         aoc_display_response(&response);
         return 1;
