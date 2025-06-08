@@ -24,8 +24,10 @@ const size_t FOLD_INFORMATION_LOCATION = 2;
 AocResponse p13_process_file(FILE *file, int* solution);
 AocResponse process_location_line(const char* line, struct Location* locations, size_t num_locations);
 AocResponse process_fold_line(const char* line, struct Fold* folds, size_t num_folds);
-void perform_fold(struct Location* locations, size_t num_locations, const struct Fold* fold, int* solution);
+void perform_folds(struct Location* locations, size_t num_locations, const struct Fold* folds, size_t num_folds, int* solution);
 bool already_contained(const struct Location* locations, size_t num_locations, struct Location* current);
+struct Location get_max_location(const struct Location* locations, size_t num_locations);
+void display_as_grid(const struct Location* locations, size_t num_locations, const struct Location* max_location);
 
 AocResponse problem13_solve(int *solution) {
   AocResponse response = {.code = SUCCESS};
@@ -78,12 +80,7 @@ AocResponse p13_process_file(FILE *file, int* solution) {
     }
   }
 
-	for (size_t i = 0; i < num_locations; i++) {
-		printf("Location: %d %d\n", locations[i].x, locations[i].y);
-	}
-	printf("\n");
-
-	perform_fold(locations, num_locations, &folds[0], solution);
+	perform_folds(locations, num_locations, folds, num_folds, solution);
 
 read_end:
   if (locations != NULL) free(locations);  
@@ -156,28 +153,55 @@ AocResponse process_fold_line(const char* line, struct Fold* folds, size_t num_f
   return response;
 }
 
-void perform_fold(struct Location* locations, size_t num_locations, const struct Fold* fold, int* solution) {
-	size_t num_after_fold = 0;
+
+void perform_folds(struct Location* locations, size_t num_locations, const struct Fold* folds, size_t num_folds, int* solution) {
+	size_t num_after_fold = num_locations;
 	size_t end_pointer = num_locations - 1;
 	size_t i = 0;
 
-	while (num_after_fold < end_pointer) {
-		if (fold->horizontal && locations[i].y > fold->val) {
-			locations[i].y = fold->val - (locations[i].y - fold->val);
-		}	else if (!fold->horizontal && locations[i].x > fold->val) {
-			locations[i].x = fold->val - (locations[i].x - fold->val);
-		}
+	for (size_t f = 0; f < num_folds; f++) {
+		end_pointer = num_after_fold - 1;
+		num_after_fold = 0;
+		i = 0;
 
-		if (already_contained(locations, num_after_fold, &locations[i])) {
-			locations[i] = locations[end_pointer--];
-		} else {
-			num_after_fold++;
-			i++;
+		while (num_after_fold < end_pointer) {
+			if (folds[f].horizontal && locations[i].y > folds[f].val) {
+				locations[i].y = folds[f].val - (locations[i].y - folds[f].val);
+			}	else if (!folds[f].horizontal && locations[i].x > folds[f].val) {
+				locations[i].x = folds[f].val - (locations[i].x - folds[f].val);
+			}
+
+			if (already_contained(locations, num_after_fold, &locations[i])) {
+				locations[i] = locations[end_pointer--];
+			} else {
+				num_after_fold++;
+				i++;
+			}
 		}
+		num_after_fold++;
 	}
 
-	num_after_fold++;
+	struct Location max = get_max_location(locations, num_after_fold);
+	display_as_grid(locations, num_after_fold, &max);
+
 	*solution = num_after_fold;
+}
+
+void display_as_grid(const struct Location* locations, size_t num_locations, const struct Location* max_location) {
+	int* grid = calloc((max_location->x + 1) * (max_location->y + 1), sizeof(int));
+	if (grid == NULL) return;
+
+	for (size_t i = 0; i < num_locations; i++) {
+		grid[(locations[i].y * (max_location->x + 1)) + locations[i].x] = 1;
+	}
+
+	for (size_t y = 0; y < max_location->y + 1; y++) {
+		for (size_t x = 0; x < max_location->x + 1; x++) {
+			char display = grid[(y * (max_location->x + 1)) + x] == 0 ? '.' : '#';
+			printf("%c", display);
+		}
+		printf("\n");
+	}
 }
 
 bool already_contained(const struct Location* locations, size_t num_locations, struct Location* current) {
@@ -186,4 +210,19 @@ bool already_contained(const struct Location* locations, size_t num_locations, s
 	}
 
 	return false;
+}
+
+struct Location get_max_location(const struct Location* locations, size_t num_locations) {
+	struct Location max = { .x=0, .y=0 };
+
+	for (size_t i = 0; i < num_locations; i++) {
+		if (locations[i].x > max.x) {
+			max.x = locations[i].x;
+		}
+		if (locations[i].y > max.y) {
+			max.y = locations[i].y;
+		}
+	}
+
+	return max;
 }
